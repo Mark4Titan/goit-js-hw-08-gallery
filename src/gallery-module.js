@@ -55,7 +55,7 @@ const opModal = (event) => {
 
     // відладка //
     // console.log(imageRef)
-    console.log(imageRef.dataset.index)
+    // console.log(imageRef.dataset.index)
     // console.log(largeImgURL)
 
     objectLink.modalImg.src = largeImgURL;
@@ -136,7 +136,7 @@ function NextImg(arrElIdx) {
     objectLink.modalImg.dataset.index = arrElIdx;
 
     // відладка //
-    console.log(arrElIdx);
+    // console.log(arrElIdx);
 }
 
 window.addEventListener('keydown', flippingImages);
