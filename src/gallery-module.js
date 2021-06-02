@@ -1,112 +1,89 @@
 import imagesArray from './gallery-items.js';
 
-const imgArrLength = imagesArray.length;
+const gallery = document.querySelector('.js-gallery');
+const lightboxEl = document.querySelector('.js-lightbox');
+const lightboxImgEl = document.querySelector('.lightbox__image');
 
 
 
-let objectLink = {
-    imagesList: document.querySelector(".js-gallery"),
-    modalImg: document.querySelector(".lightbox__image"),
-    modalHeadElement: document.querySelector(".js-lightbox"),
-    closeModalBtn: document.querySelector("button[data-action='close-lightbox']"),
-    overlayCloseBtn: document.querySelector(".lightbox__overlay"),
-}
+const galleryItemsMarkup = createGalleryItem(imagesArray);
 
+gallery.insertAdjacentHTML('afterbegin', galleryItemsMarkup)
+gallery.addEventListener('click', opModal);
+lightboxEl.addEventListener('click', closeModal);
+window.addEventListener('keydown', closeModal)
 
+//створення елементів
+function createGalleryItem(imagesArray) {
+    return imagesArray.map(({preview, original, description}, index) => {
+       //атрибути
+        return `
+            <li class="gallery__item">
+                <a
+                    class="gallery__link"
+                    href="${original}"
+                >
+                    <img
+                        class="gallery__image"
+                        src="${preview}"
+                        data-source="${original}"
+                        alt="${description}"
+                        data-index="${index}"
+                    />
+                </a>
+            </li>
+    `}).join('');
+};
 
-imagesArray.map(function (currentItem, index) {
-    
-    let galleryItem;
-    let galleryLink;
-    let galleryImg;
-
-    //створення елементів
-    galleryItem = document.createElement('li');
-    galleryItem.classList.add("gallery__item");
-
-    galleryLink = document.createElement('a');
-    galleryLink.classList.add("gallery__link");
-
-    galleryImg = document.createElement('img');
-    galleryImg.classList.add("gallery__image");
-
-    //атрибути
-    galleryImg.setAttribute('src', currentItem.preview);
-    galleryImg.setAttribute('data-source', currentItem.original);
-    galleryImg.setAttribute('alt', currentItem.description);
-    galleryImg.setAttribute('data-index', index);
-
-    // додав elemets до DOM Html
-    objectLink.imagesList.appendChild(galleryItem);
-    galleryItem.appendChild(galleryLink);
-    galleryLink.appendChild(galleryImg);
-
-});
- 
 // слухач на модалці
-const opModal = (event) => {
+function opModal(event) {
+    if (!event.target.classList.contains('gallery__image')) {
+        return;
+    };
+    event.preventDefault()
+    lightboxEl.classList.add('is-open');
+    lightboxImgEl.setAttribute('src', event.target.getAttribute('data-source'));
+    lightboxImgEl.setAttribute('alt', event.target.getAttribute('alt'));
+    lightboxImgEl.setAttribute('data-index', event.target.getAttribute('data-index'));
 
-    event.preventDefault();
-
-    if (event.target.nodeName !== 'IMG') return;
-
-    const imageRef = event.target;
-    const largeImgURL = imageRef.dataset.source;
-
-    // відладка //
-    // console.log(imageRef)
-    // console.log(imageRef.dataset.index)
-    // console.log(largeImgURL)
-
-    objectLink.modalImg.src = largeImgURL;
-    objectLink.modalImg.alt = imageRef.alt;
-    objectLink.modalImg.dataset.index = imageRef.dataset.index;
-    objectLink.modalHeadElement.classList.add('is-open');
+    // console.log(lightboxImgEl)
+    // console.log(Number(lightboxImgEl.getAttribute('data-index')))
+    
 };
 
-objectLink.imagesList.addEventListener('click', opModal);
-
-
-
-
-const formattingModal = (event) => {
-
-    if (event.key !== 'Escape') return;
-
-    objectLink.modalHeadElement.classList.remove('is-open');
-    objectLink.modalImg.src = '';
-    objectLink.modalImg.alt = '';
-    objectLink.modalImg.dataset.index = '';
-
+function formattingModal() {
+    lightboxEl.classList.remove('is-open');
+    lightboxImgEl.setAttribute('src', '');
+    lightboxImgEl.setAttribute('alt', '');
+    lightboxImgEl.removeAttribute('data-index');
 };
 
-const closeModal = () => {
 
-    objectLink.modalHeadElement.classList.remove('is-open');
-    window.removeEventListener('keydown', formattingModal); 
-    window.removeEventListener('keydown', flippingImages);
+function closeModal(evt) {
+    //закрити модалку чрез overlay
+    if (evt.target.classList.contains('lightbox__overlay')) {
+        formattingModal();
+    };
+    //закрити модалку чрез крестик
+    if (evt.target.classList.contains('lightbox__button')) {
+        formattingModal();
+    };
+    // закрити модалку чрез ESC
+    if (evt.code === 'Escape') {
+        formattingModal();
+    };
 };
 
-//закрити модалку чрез крестик
-objectLink.closeModalBtn.addEventListener('click', closeModal);
+// ///////////////////// завдання із * ///////////////////////
 
-//закрити модалку чрез overlay
-objectLink.overlayCloseBtn.addEventListener('click', closeModal);
-
-// закрити модалку чрез ESC
-window.addEventListener('keydown', formattingModal);
-
-
-
-///////////////////// завдання із * ///////////////////////
-
-// гортання стрілками
+// // гортання стрілками
 const flippingImages = e => {
 
     
-    if (!objectLink.modalHeadElement.classList.contains('is-open')) return;
-    
-    let modIndex = Number(objectLink.modalImg.dataset.index);
+    if (!lightboxEl.classList.contains('is-open')) return;
+
+    const imgArrLength = imagesArray.length;
+    let modIndex = Number(lightboxImgEl.getAttribute('data-index'));
     
     // відладка //
     // console.log(modIndex);
@@ -114,7 +91,7 @@ const flippingImages = e => {
     // console.log((modIndex - 1))
     // console.log('imgArrLength', imgArrLength)
     // console.log('imagesArray[modIndex - 1] = ', imagesArray[modIndex - 1])    
-    
+ 
 
     if (e.key == 'ArrowLeft') {        
         --modIndex;
@@ -131,9 +108,11 @@ const flippingImages = e => {
 }
 
 function NextImg(arrElIdx) {
-    objectLink.modalImg.src = imagesArray[arrElIdx].original;
-    objectLink.modalImg.alt = imagesArray[arrElIdx].description;
-    objectLink.modalImg.dataset.index = arrElIdx;
+
+
+    lightboxImgEl.setAttribute('src', imagesArray[arrElIdx].original);
+    lightboxImgEl.setAttribute('alt', imagesArray[arrElIdx].description);
+    lightboxImgEl.setAttribute('data-index', arrElIdx);
 
     // відладка //
     // console.log(arrElIdx);
