@@ -37,13 +37,12 @@ function createGalleryItem(imagesArray) {
 
 // слухач на модалці
 function opModal(event) {
-    if (!event.target.classList.contains('gallery__image')) {
-        return;
-    };
+    if (!event.target.classList.contains('gallery__image')) return;
+
     event.preventDefault()
     lightboxEl.classList.add('is-open');
-    lightboxImgEl.setAttribute('src', event.target.getAttribute('data-source'));
-    lightboxImgEl.setAttribute('alt', event.target.getAttribute('alt'));
+    lightboxImgEl.src = event.target.getAttribute('data-source');
+    lightboxImgEl.alt = event.target.getAttribute('alt');
     lightboxImgEl.setAttribute('data-index', event.target.getAttribute('data-index'));
 
     // console.log(lightboxImgEl)
@@ -53,25 +52,23 @@ function opModal(event) {
 
 function formattingModal() {
     lightboxEl.classList.remove('is-open');
-    lightboxImgEl.setAttribute('src', '');
-    lightboxImgEl.setAttribute('alt', '');
+    lightboxImgEl.src = '';
+    lightboxImgEl.alt = '';
     lightboxImgEl.removeAttribute('data-index');
 };
 
 
 function closeModal(evt) {
-    //закрити модалку чрез overlay
-    if (evt.target.classList.contains('lightbox__overlay')) {
-        formattingModal();
-    };
-    //закрити модалку чрез крестик
-    if (evt.target.classList.contains('lightbox__button')) {
-        formattingModal();
-    };
-    // закрити модалку чрез ESC
-    if (evt.code === 'Escape') {
-        formattingModal();
-    };
+    
+    if (//закрити модалку чрез overlay
+        evt.target.classList.contains('lightbox__overlay') ||
+        //закрити модалку чрез крестик
+        evt.target.classList.contains('lightbox__button') ||
+        // закрити модалку чрез ESC
+        evt.code === 'Escape'
+    ) formattingModal();
+    
+  
 };
 
 // ///////////////////// завдання із * ///////////////////////
@@ -110,8 +107,8 @@ const flippingImages = e => {
 function NextImg(arrElIdx) {
 
 
-    lightboxImgEl.setAttribute('src', imagesArray[arrElIdx].original);
-    lightboxImgEl.setAttribute('alt', imagesArray[arrElIdx].description);
+    lightboxImgEl.src = imagesArray[arrElIdx].original;
+    lightboxImgEl.alt = imagesArray[arrElIdx].description;
     lightboxImgEl.setAttribute('data-index', arrElIdx);
 
     // відладка //
